@@ -38,10 +38,13 @@ abstract class Line
      * @param array $point1 Array containing int X and int Y position of the starting point.
      * @param array $point2 Array containing int X and int Y position of the starting point.
      * @param int $thickness Thickness in pixel. Note: This is currently ignored in GD editor and falls back to 1.
-     * @param Color $color Color of the line.
+     * @param Color|string $color Color of the line. Defaults to black.
      */
-    public function __construct(array $point1, array $point2, $thickness = 1, Color $color)
+    public function __construct(array $point1, array $point2, $thickness = 1, $color = '#000000')
     {
+        if (is_string($color)) {
+            $color = new Color($color);
+        }
         $this->point1 = $point1;
         $this->point2 = $point2;
         $this->thickness = $thickness;

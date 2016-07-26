@@ -4,18 +4,12 @@ namespace CycloneSlider\Grafika\Imagick;
 
 use CycloneSlider\Grafika\DrawingObjectInterface;
 use CycloneSlider\Grafika\EditorInterface;
-use CycloneSlider\Grafika\EffectInterface;
+use CycloneSlider\Grafika\FilterInterface;
 use CycloneSlider\Grafika\Grafika;
 use CycloneSlider\Grafika\ImageInterface;
 use CycloneSlider\Grafika\ImageType;
 use CycloneSlider\Grafika\Color;
-use CycloneSlider\Grafika\Imagick\DrawingObject\CubicBezier;
-use CycloneSlider\Grafika\Imagick\DrawingObject\Ellipse;
-use CycloneSlider\Grafika\Imagick\DrawingObject\Line;
-use CycloneSlider\Grafika\Imagick\DrawingObject\Polygon;
-use CycloneSlider\Grafika\Imagick\DrawingObject\QuadraticBezier;
-use CycloneSlider\Grafika\Imagick\DrawingObject\Rectangle;
-use CycloneSlider\Grafika\Imagick\Effect\Dither;
+use CycloneSlider\Grafika\Imagick\ImageHash\DifferenceHash;
 
 /**
  * Imagick Editor class. Uses the PHP Imagick library.
@@ -38,56 +32,17 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * @param EffectInterface $effect
+     * Apply a filter to the image. See Filters section for a list of available filters.
      *
-     * @return $this
+     * @param FilterInterface $filter
+     *
+     * @return Editor
      */
-    public function apply($effect)
+    public function apply($filter)
     {
-        $this->image = $effect->apply($this->image);
+        $this->image = $filter->apply($this->image);
 
         return $this;
-    }
-
-    /**
-     * Creates a cubic bezier. Cubic bezier has 2 control points.
-     *
-     * @param array $point1 Array of X and Y value for start point.
-     * @param array $control1 Array of X and Y value for control point 1.
-     * @param array $control2 Array of X and Y value for control point 2.
-     * @param array $point2 Array of X and Y value for end point.
-     * @param Color|string $color Color of the curve. Accepts hex string or a Color object. Defaults to black.
-     *
-     * @return Editor
-     */
-    public function bezierCubic($point1, $control1, $control2, $point2, $color = '#000000')
-    {
-        if (is_string($color)) {
-            $color = new Color($color);
-        }
-        $obj = new CubicBezier($point1, $control1, $control2, $point2, $color);
-
-        return $this->draw($obj);
-    }
-
-    /**
-     * Creates a quadratic bezier. Quadratic bezier has 1 control point.
-     *
-     * @param array $point1 Array of X and Y value for start point.
-     * @param array $control Array of X and Y value for control point.
-     * @param array $point2 Array of X and Y value for end point.
-     * @param Color|string $color Color of the curve. Accepts hex string or a Color object. Defaults to black.
-     *
-     * @return Editor
-     */
-    public function bezierQuad($point1, $control, $point2, $color = '#000000')
-    {
-        if (is_string($color)) {
-            $color = new Color($color);
-        }
-        $obj = new QuadraticBezier($point1, $control, $point2, $color);
-
-        return $this->draw($obj);
     }
 
     /**
@@ -125,8 +80,10 @@ final class Editor implements EditorInterface
             $image2 = Image::createFromFile($image2);
         }
 
-        $bin1     = $this->_differenceHash($image1);
-        $bin2     = $this->_differenceHash($image2);
+        $hash = new DifferenceHash();
+
+        $bin1     = $hash->hash($image1);
+        $bin2     = $hash->hash($image2);
         $str1     = str_split($bin1);
         $str2     = str_split($bin2);
         $distance = 0;
@@ -145,52 +102,51 @@ final class Editor implements EditorInterface
      *
      * @param int $cropWidth Crop width in pixels.
      * @param int $cropHeight Crop Height in pixels.
-     * @param int|string $cropX The number of pixels from the left of the image. This parameter can be a number or any of the words "left", "center", "right".
-     * @param int|string $cropY The number of pixels from the top of the image. This parameter can be a number or any of the words "top", "center", "bottom".
+     * @param string $position The crop position. Possible values top-left, top-center, top-right, center-left, center, center-right, bottom-left, bottom-center, bottom-right and smart. Defaults to center.
+     * @param int $offsetX Number of pixels to add to the X position of the crop.
+     * @param int $offsetY Number of pixels to add to the Y position of the crop.
      *
-     * @return self
+     * @return Editor
+     * @throws \Exception
      */
-    public function crop($cropWidth, $cropHeight, $cropX = 'center', $cropY = 'center')
+    public function crop($cropWidth, $cropHeight, $position = 'center', $offsetX = 0, $offsetY = 0)
     {
 
-        if (is_string($cropX)) {
-            // Compute position from string
-            switch ($cropX) {
-                case 'left':
-                    $x = 0;
-                    break;
-
-                case 'right':
-                    $x = $this->image->getWidth() - $cropWidth;
-                    break;
-
-                case 'center':
-                default:
-                    $x = (int)round(($this->image->getWidth() / 2) - ($cropWidth / 2));
-                    break;
-            }
+        if ('top-left' === $position) {
+            $x = 0;
+            $y = 0;
+        } else if ('top-center' === $position) {
+            $x = (int)round(($this->image->getWidth() / 2) - ($cropWidth / 2));
+            $y = 0;
+        } else if ('top-right' === $position) {
+            $x = $this->image->getWidth() - $cropWidth;
+            $y = 0;
+        } else if ('center-left' === $position) {
+            $x = 0;
+            $y = (int)round(($this->image->getHeight() / 2) - ($cropHeight / 2));
+        } else if ('center-right' === $position) {
+            $x = $this->image->getWidth() - $cropWidth;
+            $y = (int)round(($this->image->getHeight() / 2) - ($cropHeight / 2));
+        } else if ('bottom-left' === $position) {
+            $x = 0;
+            $y = $this->image->getHeight() - $cropHeight;
+        } else if ('bottom-center' === $position) {
+            $x = (int)round(($this->image->getWidth() / 2) - ($cropWidth / 2));
+            $y = $this->image->getHeight() - $cropHeight;
+        } else if ('bottom-right' === $position) {
+            $x = $this->image->getWidth() - $cropWidth;
+            $y = $this->image->getHeight() - $cropHeight;
+        } else if ('smart' === $position) { // Smart crop
+            list($x, $y) = $this->_smartCrop($cropWidth, $cropHeight);
+        } else if ('center' === $position) {
+            $x = (int)round(($this->image->getWidth() / 2) - ($cropWidth / 2));
+            $y = (int)round(($this->image->getHeight() / 2) - ($cropHeight / 2));
         } else {
-            $x = $cropX;
+            throw new \Exception('Invalid parameter position.');
         }
 
-        if (is_string($cropY)) {
-            switch ($cropY) {
-                case 'top':
-                    $y = 0;
-                    break;
-
-                case 'bottom':
-                    $y = $this->image->getHeight() - $cropHeight;
-                    break;
-
-                case 'center':
-                default:
-                    $y = (int)round(($this->image->getHeight() / 2) - ($cropHeight / 2));
-                    break;
-            }
-        } else {
-            $y = $cropY;
-        }
+        $x += $offsetX;
+        $y += $offsetY;
 
         $this->image->getCore()->cropImage($cropWidth, $cropHeight, $x, $y);
 
@@ -198,17 +154,8 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Dither image using Floyd-Steinberg algorithm. Dithering will reduce the color to black and white and add noise.
-     * @return EditorInterface An instance of image editor.
-     */
-    public function dither()
-    {
-        $e = new Dither();
-
-        return $this->apply($e);
-    }
-
-    /**
+     * Draw a DrawingObject on the image. See Drawing Objects section.
+     *
      * @param DrawingObjectInterface $drawingObject
      *
      * @return $this
@@ -218,37 +165,6 @@ final class Editor implements EditorInterface
         $this->image = $drawingObject->draw($this->image);
 
         return $this;
-    }
-
-    /**
-     * Creates an ellipse.
-     *
-     * @param int $width Width of ellipse in pixels.
-     * @param int $height Height of ellipse in pixels.
-     * @param array $pos Array containing int X and int Y position of the ellipse from top left of the canvass.
-     * @param int $borderSize Size of the border in pixels. Defaults to 1 pixel. Set to 0 for no border.
-     * @param Color|string|null $borderColor Border color. Defaults to black. Set to null for no color.
-     * @param Color|string|null $fillColor Fill color. Defaults to white. Set to null for no color.
-     *
-     * @return EditorInterface An instance of image editor.
-     */
-    public function ellipse(
-        $width,
-        $height,
-        array $pos,
-        $borderSize = 1,
-        $borderColor = '#000000',
-        $fillColor = '#FFFFFF'
-    ) {
-        if (is_string($borderColor)) {
-            $borderColor = new Color($borderColor);
-        }
-        if (is_string($fillColor)) {
-            $fillColor = new Color($fillColor);
-        }
-        $obj = new Ellipse($width, $height, $pos, $borderSize, $borderColor, $fillColor);
-
-        return $this->draw($obj);
     }
 
     /**
@@ -341,31 +257,6 @@ final class Editor implements EditorInterface
         }
     }
 
-
-    /**
-     * Converts image to grayscale.
-     *
-     * @return $this
-     */
-    public function grayscale()
-    {
-        $this->_imageCheck();
-
-        $this->image->getCore()->modulateImage(100, 0, 100);
-
-        return $this;
-    }
-
-    /**
-     * Alias for grayscale. They are the same.
-     *
-     * @return $this
-     */
-    public function greyscale()
-    {
-        return $this->grayscale();
-    }
-
     /**
      * Get image instance.
      *
@@ -394,26 +285,6 @@ final class Editor implements EditorInterface
         }
 
         return true;
-    }
-
-    /**
-     * Creates a line.
-     *
-     * @param array $point1 Array containing int X and int Y position of the starting point.
-     * @param array $point2 Array containing int X and int Y position of the starting point.
-     * @param int $thickness Thickness in pixel. Note: This is currently ignored in GD editor and falls back to 1.
-     * @param Color|string $color Color of the line. Defaults to black.
-     *
-     * @return Editor
-     */
-    public function line(array $point1, array $point2, $thickness = 1, $color = '#000000')
-    {
-        if (is_string($color)) {
-            $color = new Color($color);
-        }
-        $obj = new Line($point1, $point2, $thickness, $color);
-
-        return $this->draw($obj);
     }
 
     /**
@@ -586,61 +457,6 @@ final class Editor implements EditorInterface
         return $this;
 
     }
-
-    /**
-     * Creates a polygon.
-     *
-     * @param array $points Array of all X and Y positions. Must have at least three positions.
-     * @param int $borderSize Size of the border in pixels. Defaults to 1 pixel. Set to 0 for no border.
-     * @param Color|string|null $borderColor Border color. Defaults to black. Set to null for no color.
-     * @param Color|string|null $fillColor Fill color. Defaults to white. Set to null for no color.
-     *
-     * @return EditorInterface An instance of image editor.
-     */
-    public function polygon($points, $borderSize = 1, $borderColor = '#000000', $fillColor = '#FFFFFF')
-    {
-        if (is_string($borderColor)) {
-            $borderColor = new Color($borderColor);
-        }
-        if (is_string($fillColor)) {
-            $fillColor = new Color($fillColor);
-        }
-        $obj = new Polygon($points, $borderSize, $borderColor, $fillColor);
-
-        return $this->draw($obj);
-    }
-
-    /**
-     * Creates a rectangle.
-     *
-     * @param int $width Width of rectangle in pixels.
-     * @param int $height Height in pixels.
-     * @param array $pos Array of X and Y position. X is the distance in pixels from the left of the canvass to the left of the rectangle. Y is the distance from the top of the canvass to the top of the rectangle. Defaults to array(0,0).
-     * @param int $borderSize Size of the border in pixels. Defaults to 1 pixel. Set to 0 for no border.
-     * @param Color|string|null $borderColor Border color. Defaults to black. Set to null for no color.
-     * @param Color|string|null $fillColor Fill color. Defaults to white. Set to null for no color.
-     *
-     * @return Editor
-     */
-    public function rectangle(
-        $width,
-        $height,
-        $pos = array(0, 0),
-        $borderSize = 1,
-        $borderColor = '#000000',
-        $fillColor = '#FFFFFF'
-    ) {
-        if (is_string($borderColor)) {
-            $borderColor = new Color($borderColor);
-        }
-        if (is_string($fillColor)) {
-            $fillColor = new Color($fillColor);
-        }
-        $obj = new Rectangle($width, $height, $pos, $borderSize, $borderColor, $fillColor);
-
-        return $this->draw($obj);
-    }
-
 
     /**
      * Wrapper function for the resizeXXX family of functions. Resize image given width, height and mode.
@@ -857,7 +673,7 @@ final class Editor implements EditorInterface
             }
         }
 
-        switch ($type) {
+        switch (strtoupper($type)) {
             case ImageType::GIF :
                 $this->image->getCore()->writeImages($file, true); // Support animated image. Eg. GIF
                 break;
@@ -871,12 +687,13 @@ final class Editor implements EditorInterface
             default: // Defaults to jpeg
                 $quality = ($quality === null) ? 75 : $quality; // Default to 75 (GDs default) if null.
                 $quality = ($quality > 100) ? 100 : $quality;
-                $quality = ($quality < 0) ? 0 : $quality;
+                $quality = ($quality <= 0) ? 1 : $quality; // Note: If 0 change it to 1. The lowest quality in Imagick is 1 whereas in GD its 0.
 
                 if ($interlace) {
                     $this->image->getCore()->setImageInterlaceScheme(\Imagick::INTERLACE_JPEG);
                 }
                 $this->image->getCore()->setImageFormat($type);
+                $this->image->getCore()->setImageCompression(\Imagick::COMPRESSION_JPEG);
                 $this->image->getCore()->setImageCompressionQuality($quality);
                 $this->image->getCore()->writeImage($file); // Single frame image. Eg. JPEG
         }
@@ -941,52 +758,150 @@ final class Editor implements EditorInterface
     }
 
     /**
-     * Get difference hash of image.
-     * Algorithm:
-     * Reduce size. The fastest way to remove high frequencies and detail is to shrink the image. In this case, shrink it to 9x8 so that there are 72 total pixels.
-     * Reduce color. Convert the image to a grayscale picture. This changes the hash from 72 pixels to a total of 72 colors.
-     * Compute the difference. The algorithm works on the difference between adjacent pixels. This identifies the relative gradient direction. In this case, the 9 pixels per row yields 8 differences between adjacent pixels. Eight rows of eight differences becomes 64 bits.
-     * Assign bits. Each bit is simply set based on whether the left pixel is brighter than the right pixel.
+     * Get histogram from an entire image or its sub-region of image.
      *
-     * http://www.hackerfactor.com/blog/index.php?/archives/529-Kind-of-Like-That.html
-     * @param Image $image
+     * @param array|null $slice Array of slice information. array( array( 0,0), array(100,50)) means x,y is 0,0 and width,height is 100,50
      *
-     * @return string
+     * @return array Returns array containing RGBA bins array('r'=>array(), 'g'=>array(), 'b'=>array(), 'a'=>array())
      */
-    private function _differenceHash($image)
+    function histogram($slice = null)
     {
+        if(null === $slice){
+            $sliceX = 0;
+            $sliceY = 0;
+            $sliceW = $this->image->getWidth();
+            $sliceH = $this->image->getHeight();
+        } else {
+            $sliceX = $slice[0][0];
+            $sliceY = $slice[0][1];
+            $sliceW = $slice[1][0];
+            $sliceH = $slice[1][1];
+        }
 
-        $width  = 9;
-        $height = 8;
+        $rBin = array();
+        $gBin = array();
+        $bBin = array();
+        $aBin = array();
+
+        // Loop using image1
+        $pixelIterator = $this->image->getCore()->getPixelIterator();
+        foreach ($pixelIterator as $y => $rows) { /* Loop through pixel rows */
+            if($y >= $sliceY and $y < $sliceY+$sliceH) {
+                foreach ($rows as $x => $px) { /* Loop through the pixels in the row (columns) */
+                    if($x >= $sliceX and $x < $sliceX+$sliceW) {
+                        /**
+                         * @var $px \ImagickPixel */
+                        $pixel = $px->getColor();
+                        $r = $pixel['r'];
+                        $g = $pixel['g'];
+                        $b = $pixel['b'];
+                        $a = $pixel['a'];
+
+                        if ( ! isset($rBin[$r])) {
+                            $rBin[$r] = 1;
+                        } else {
+                            $rBin[$r]++;
+                        }
+
+                        if ( ! isset($gBin[$g])) {
+                            $gBin[$g] = 1;
+                        } else {
+                            $gBin[$g]++;
+                        }
+
+                        if ( ! isset($bBin[$b])) {
+                            $bBin[$b] = 1;
+                        } else {
+                            $bBin[$b]++;
+                        }
+
+                        if ( ! isset($aBin[$a])) {
+                            $aBin[$a] = 1;
+                        } else {
+                            $aBin[$a]++;
+                        }
+                    }
+                }
+            }
+        }
+        return array(
+            'r' => $rBin,
+            'g' => $gBin,
+            'b' => $bBin,
+            'a' => $aBin
+        );
+    }
+
+    /**
+     * Calculate entropy based on histogram.
+     *
+     * @param $hist
+     *
+     * @return float|int
+     */
+    function entropy($hist){
+        $entropy = 0;
+        $hist_size = array_sum($hist['r']) + array_sum($hist['g']) + array_sum($hist['b']);
+        foreach($hist['r'] as $p){
+            $p = $p / $hist_size;
+            $entropy += $p * log($p, 2);
+        }
+        foreach($hist['g'] as $p){
+            $p = $p / $hist_size;
+            $entropy += $p * log($p, 2);
+        }
+        foreach($hist['b'] as $p){
+            $p = $p / $hist_size;
+            $entropy += $p * log($p, 2);
+        }
+        return $entropy * -1;
+    }
+
+    /**
+     * Crop based on entropy.
+     *
+     * @param $cropW
+     * @param $cropH
+     *
+     * @return array
+     */
+    private function _smartCrop($cropW, $cropH){
+        $image = clone $this->image;
 
         $editor = new Editor();
         $editor->setImage($image);
-        $editor->resizeExact($width, $height); // Resize to exactly 9x8
-        $imagick = $editor->getImage()->getCore();
+        $editor->resizeFit(30, 30);
 
-        // Build hash
-        $hash = '';
-        for ($y = 0; $y < $height; $y++) {
-            // Get the pixel value for the leftmost pixel.
-            $rgba = $imagick->getImagePixelColor(0, $y)->getColor();
+        $origW = $this->getImage()->getWidth();
+        $origH = $this->getImage()->getHeight();
+        $resizeW = $editor->getImage()->getWidth();
+        $resizeH = $editor->getImage()->getHeight();
 
-            $left = floor(($rgba['r'] + $rgba['g'] + $rgba['b']) / 3);
-            for ($x = 1; $x < $width; $x++) {
-                // Get the pixel value for each pixel starting from position 1.
-                $rgba  = $imagick->getImagePixelColor($x, $y)->getColor();
-                $right = floor(($rgba['r'] + $rgba['g'] + $rgba['b']) / 3);
-                // Each hash bit is set based on whether the left pixel is brighter than the right pixel.
-                if ($left > $right) {
-                    $hash .= '1';
-                } else {
-                    $hash .= '0';
-                }
-                // Prepare the next loop.
-                $left = $right;
+        $smallCropW = round(($resizeW / $origW) * $cropW);
+        $smallCropH = round(($resizeH / $origH) * $cropH);
+
+        $step = 1;
+
+        for($y = 0; $y < $resizeH-$smallCropH; $y+=$step){
+            for($x = 0; $x < $resizeW-$smallCropW; $x+=$step){
+                $hist[$x.'-'.$y] = $this->entropy($editor->histogram(array(array($x, $y), array($smallCropW, $smallCropH))));
+            }
+            if($resizeW-$smallCropW <= 0){
+                $hist['0-'.$y] = $this->entropy($editor->histogram(array(array(0, 0), array($smallCropW, $smallCropH))));
             }
         }
+        if($resizeH-$smallCropH <= 0){
+            $hist['0-0'] = $this->entropy($editor->histogram(array(array(0, 0), array($smallCropW, $smallCropH))));
+        }
 
-        return $hash;
+        asort($hist);
+        end($hist);
+        $pos = key($hist); // last key
+        list($x, $y) = explode('-', $pos);
+        $x = round($x*($origW / $resizeW));
+        $y = round($y*($origH / $resizeH));
+
+        return array($x,$y);
     }
 
     /**

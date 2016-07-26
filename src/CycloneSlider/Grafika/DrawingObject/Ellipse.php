@@ -45,16 +45,29 @@ abstract class Ellipse
 
 
     /**
-     * Ellipse constructor.
+     * Creates an ellipse.
      *
      * @param int $width Width of ellipse in pixels.
      * @param int $height Height of ellipse in pixels.
-     * @param array $pos Array containing int X and int Y position from top left of canvass.
-     * @param int $borderSize Border thickness in pixels.
-     * @param Color|null $borderColor Border color.
-     * @param Color|null $fillColor Border color.
+     * @param array $pos Array containing int X and int Y position of the ellipse from top left of the canvass.
+     * @param int $borderSize Size of the border in pixels. Defaults to 1 pixel. Set to 0 for no border.
+     * @param Color|string|null $borderColor Border color. Defaults to black. Set to null for no color.
+     * @param Color|string|null $fillColor Fill color. Defaults to white. Set to null for no color.
      */
-    public function __construct($width, $height, $pos, $borderSize, $borderColor, $fillColor) {
+    public function __construct(
+        $width,
+        $height,
+        array $pos,
+        $borderSize = 1,
+        $borderColor = '#000000',
+        $fillColor = '#FFFFFF'
+    ) {
+        if (is_string($borderColor)) {
+            $borderColor = new Color($borderColor);
+        }
+        if (is_string($fillColor)) {
+            $fillColor = new Color($fillColor);
+        }
         $this->width = $width;
         $this->height = $height;
         $this->pos = $pos;

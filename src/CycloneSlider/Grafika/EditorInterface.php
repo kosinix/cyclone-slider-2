@@ -8,34 +8,13 @@ namespace CycloneSlider\Grafika;
 interface EditorInterface {
 
     /**
-     * Apply an effect to the image. See Effects section for a list of effects to apply.
+     * Apply a filter to the image. See Filters section for a list of available filters.
      *
-     * @param EffectInterface $effect
+     * @param FilterInterface $filter
      *
-     * @return $this
-     */
-    public function apply( $effect );
-
-    /**
-     * Creates a cubic bezier. Cubic bezier has 2 control points.
-     * @param array $point1 Array of X and Y value for start point.
-     * @param array $control1 Array of X and Y value for control point 1.
-     * @param array $control2 Array of X and Y value for control point 2.
-     * @param array $point2 Array of X and Y value for end point.
-     * @param Color|string $color Color of the curve. Accepts hex string or a Color object. Defaults to black.
      * @return EditorInterface An instance of image editor.
      */
-    public function bezierCubic($point1, $control1, $control2, $point2, $color = '#000000');
-
-    /**
-     * Creates a quadratic bezier. Quadratic bezier has 1 control point.
-     * @param array $point1 Array of X and Y value for start point.
-     * @param array $control Array of X and Y value for control point.
-     * @param array $point2 Array of X and Y value for end point.
-     * @param Color|string $color Color of the curve. Accepts hex string or a Color object. Defaults to black.
-     * @return EditorInterface An instance of image editor.
-     */
-    public function bezierQuad($point1, $control, $point2, $color = '#000000');
+    public function apply( $filter );
     
     /**
      * Create a blank image given width and height.
@@ -63,18 +42,13 @@ interface EditorInterface {
      *
      * @param int $cropWidth Crop width in pixels.
      * @param int $cropHeight Crop Height in pixels.
-     * @param int|string $cropX The number of pixels from the left of the image. This parameter can be a number or any of the words "left", "center", "right".
-     * @param int|string $cropY The number of pixels from the top of the image. This parameter can be a number or any of the words "top", "center", "bottom".
+     * @param string $position The crop position. Possible values top-left, top-center, top-right, center-left, center, center-right, bottom-left, bottom-center, bottom-right and smart. Defaults to center.
+     * @param int $offsetX Number of pixels to add to the X position of the crop.
+     * @param int $offsetY Number of pixels to add to the Y position of the crop.
      *
      * @return EditorInterface An instance of image editor.
      */
-    public function crop( $cropWidth, $cropHeight, $cropX='center', $cropY='center');
-
-    /**
-     * Dither image using Floyd-Steinberg algorithm. Dithering will reduce the color to black and white and add noise.
-     * @return EditorInterface An instance of image editor.
-     */
-    public function dither();
+    public function crop($cropWidth, $cropHeight, $position = 'center', $offsetX = 0, $offsetY = 0);
 
     /**
      * Draw a DrawingObject on the image. See Drawing Objects section.
@@ -84,20 +58,6 @@ interface EditorInterface {
      * @return EditorInterface An instance of image editor.
      */
     public function draw( $drawingObject );
-
-    /**
-     * Creates an ellipse.
-     *
-     * @param int $width Width of ellipse in pixels.
-     * @param int $height Height of ellipse in pixels.
-     * @param array $pos Array containing int X and int Y position of the ellipse from top left of the canvass.
-     * @param int $borderSize Size of the border in pixels. Defaults to 1 pixel. Set to 0 for no border.
-     * @param Color|string|null $borderColor Border color. Defaults to black. Set to null for no color.
-     * @param Color|string|null $fillColor Fill color. Defaults to white. Set to null for no color.
-     * 
-     * @return EditorInterface An instance of image editor.
-     */
-    public function ellipse($width, $height, array $pos, $borderSize = 1, $borderColor = '#000000', $fillColor = '#FFFFFF');
 
     /**
      * Compare if two images are equal. It will compare if the two images are of the same width and height. If the dimensions differ, it will return false. If the dimensions are equal, it will loop through each pixels. If one of the pixel don't match, it will return false. The pixels are compared using their RGB (Red, Green, Blue) values.
@@ -127,20 +87,6 @@ interface EditorInterface {
     public function free();
 
     /**
-     * Converts image to grayscale.
-     *
-     * @return EditorInterface An instance of image editor.
-     */
-    public function grayscale();
-
-    /**
-     * Alias for grayscale.
-     *
-     * @return EditorInterface An instance of image editor.
-     */
-    public function greyscale();
-
-    /**
      * Get image instance.
      *
      * @return ImageInterface An instance of image.
@@ -153,18 +99,6 @@ interface EditorInterface {
      * @return bool True if available false if not.
      */
     public function isAvailable();
-
-    /**
-     * Creates a line.
-     *
-     * @param array $point1 Array containing int X and int Y position of the starting point.
-     * @param array $point2 Array containing int X and int Y position of the starting point.
-     * @param int $thickness Thickness in pixel. Note: This is currently ignored in GD editor and falls back to 1.
-     * @param Color|string $color Color of the line. Defaults to black.
-     * 
-     * @return EditorInterface An instance of image editor.
-     */
-    public function line(array $point1, array $point2, $thickness = 1, $color = '#000000');
 
     /**
      * Change the image opacity.
@@ -215,31 +149,6 @@ interface EditorInterface {
      * @return EditorInterface An instance of image editor.
      */
     public function overlay( $overlay, $xPos = 'center', $yPos = 'center', $width = null, $height = null );
-
-    /**
-     * Creates a polygon.
-     *
-     * @param array $points Array of all X and Y positions. Must have at least three positions.
-     * @param int $borderSize Size of the border in pixels. Defaults to 1 pixel. Set to 0 for no border.
-     * @param Color|string|null $borderColor Border color. Defaults to black. Set to null for no color.
-     * @param Color|string|null $fillColor Fill color. Defaults to white. Set to null for no color.
-     *
-     * @return EditorInterface An instance of image editor.
-     */
-    public function polygon($points, $borderSize = 1, $borderColor = '#000000', $fillColor = '#FFFFFF');
-
-    /**
-     * Creates a rectangle.
-     * @param int $width Width of rectangle in pixels.
-     * @param int $height Height in pixels.
-     * @param array $pos Array of X and Y position. X is the distance in pixels from the left of the canvass to the left of the rectangle. Y is the distance from the top of the canvass to the top of the rectangle. Defaults to array(0,0).
-     * @param int $borderSize Size of the border in pixels. Defaults to 1 pixel. Set to 0 for no border.
-     * @param Color|string|null $borderColor Border color. Defaults to black. Set to null for no color.
-     * @param Color|string|null $fillColor Fill color. Defaults to white. Set to null for no color.
-     *
-     * @return EditorInterface An instance of image editor.
-     */
-    public function rectangle($width, $height, $pos = array(0, 0), $borderSize = 1, $borderColor = '#000000', $fillColor = '#FFFFFF');
     
     /**
      * Wrapper function for the resizeXXX family of functions. Resize an image to a given width, height and mode.

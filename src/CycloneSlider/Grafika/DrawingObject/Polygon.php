@@ -44,12 +44,20 @@ abstract class Polygon
 
     /**
      * Creates a polygon.
+     *
      * @param array $points Array of all X and Y positions. Must have at least three positions.
-     * @param int $borderSize Size of the border in pixels. Defaults to 0 or no border.
-     * @param Color $borderColor Border color. Defaults to black.
-     * @param Color $fillColor Fill color. Defaults to none (null).
+     * @param int $borderSize Size of the border in pixels. Defaults to 1 pixel. Set to 0 for no border.
+     * @param Color|string|bool $borderColor Border color. Defaults to black. Set to null for no color.
+     * @param Color|string|bool $fillColor Fill color. Defaults to white. Set to null for no color.
      */
-    public function __construct($points = array(array(0,0), array(0,0), array(0,0)), $borderSize, $borderColor, $fillColor) {
+    public function __construct($points = array(array(0,0), array(0,0), array(0,0)), $borderSize = 1, $borderColor = '#000000', $fillColor = '#FFFFFF') {
+
+        if (is_string($borderColor)) {
+            $borderColor = new Color($borderColor);
+        }
+        if (is_string($fillColor)) {
+            $fillColor = new Color($fillColor);
+        }
         $this->points = $points;
         $this->borderSize = $borderSize;
         $this->borderColor = $borderColor;
