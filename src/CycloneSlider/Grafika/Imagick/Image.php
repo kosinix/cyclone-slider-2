@@ -52,7 +52,13 @@ final class Image implements ImageInterface {
         $this->type      = $type;
     }
 
+    public function __clone()
+    {
+        $copy = clone $this->imagick;
 
+        $this->imagick = $copy;
+    }
+    
     /**
      * @param $imageFile
      *

@@ -44,14 +44,28 @@ abstract class Rectangle
 
     /**
      * Creates a rectangle.
+     *
      * @param int $width Width of rectangle in pixels.
      * @param int $height Height in pixels.
-     * @param array $pos Array containing int X and int Y position. X is the distance in pixels from the left of the canvass to the left of the shape. Y is the distance from the top of the canvass to the top of the shape.
-     * @param int $borderSize Size of the border in pixels.
-     * @param Color|null $borderColor Border color.
-     * @param Color|null $fillColor Fill color.
+     * @param array $pos Array of X and Y position. X is the distance in pixels from the left of the canvass to the left of the rectangle. Y is the distance from the top of the canvass to the top of the rectangle. Defaults to array(0,0).
+     * @param int $borderSize Size of the border in pixels. Defaults to 1 pixel. Set to 0 for no border.
+     * @param Color|string|null $borderColor Border color. Defaults to black. Set to null for no color.
+     * @param Color|string|null $fillColor Fill color. Defaults to white. Set to null for no color.
      */
-    public function __construct($width, $height, $pos, $borderSize, $borderColor, $fillColor) {
+    public function __construct(
+        $width,
+        $height,
+        $pos = array(0, 0),
+        $borderSize = 1,
+        $borderColor = '#000000',
+        $fillColor = '#FFFFFF'
+    ) {
+        if (is_string($borderColor)) {
+            $borderColor = new Color($borderColor);
+        }
+        if (is_string($fillColor)) {
+            $fillColor = new Color($fillColor);
+        }
         $this->width = $width;
         $this->height = $height;
         $this->pos = $pos;

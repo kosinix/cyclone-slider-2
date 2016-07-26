@@ -52,6 +52,16 @@ final class Image implements ImageInterface {
         $this->type      = $type;
     }
 
+    public function __clone()
+    {
+        $original = $this->gd;
+        $copy = imagecreatetruecolor($this->width, $this->height);
+
+        imagecopy($copy, $original, 0, 0, 0, 0, $this->width, $this->height);
+
+        $this->gd = $copy;
+    }
+
     /**
      * @param $imageFile
      *

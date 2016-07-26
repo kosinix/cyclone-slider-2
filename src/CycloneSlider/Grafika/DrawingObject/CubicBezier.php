@@ -42,16 +42,18 @@ abstract class CubicBezier
     protected $color;
 
     /**
-     * CubicBezier constructor.
-     * @param $point1
-     * @param $control1
-     * @param $control2
-     * @param $point2
-     * @param Color $color
+     * Creates a cubic bezier. Cubic bezier has 2 control points.
+     * @param array $point1 Array of X and Y value for start point.
+     * @param array $control1 Array of X and Y value for control point 1.
+     * @param array $control2 Array of X and Y value for control point 2.
+     * @param array $point2 Array of X and Y value for end point.
+     * @param Color|string $color Color of the curve. Accepts hex string or a Color object. Defaults to black.
      */
-    public function __construct($point1, $control1, $control2, $point2, Color $color)
+    public function __construct($point1, $control1, $control2, $point2, $color = '#000000')
     {
-
+        if (is_string($color)) {
+            $color = new Color($color);
+        }
         $this->point1 = $point1;
         $this->control1 = $control1;
         $this->control2 = $control2;

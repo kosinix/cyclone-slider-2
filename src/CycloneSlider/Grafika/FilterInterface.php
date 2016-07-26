@@ -2,10 +2,10 @@
 namespace CycloneSlider\Grafika;
 
 /**
- * Interface EffectInterface
+ * Interface FilterInterface
  * @package Grafika
  */
-interface EffectInterface {
+interface FilterInterface {
 
     /**
      * @param ImageInterface $image

@@ -2,7 +2,7 @@
 namespace CycloneSlider\Grafika;
 
 /**
- * Class Color
+ * Holds the color information.
  * @package Grafika
  */
 class Color {

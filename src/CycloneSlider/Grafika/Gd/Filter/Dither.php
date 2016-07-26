@@ -1,14 +1,14 @@
 <?php
 
-namespace CycloneSlider\Grafika\Gd\Effect;
+namespace CycloneSlider\Grafika\Gd\Filter;
 
-use CycloneSlider\Grafika\EffectInterface;
+use CycloneSlider\Grafika\FilterInterface;
 use CycloneSlider\Grafika\Gd\Image;
 
 /**
  * Dither image using Floyd-Steinberg algorithm. Dithering will reduce the color to black and white and add noise.
  */
-class Dither implements EffectInterface{
+class Dither implements FilterInterface{
     /**
      * Dither an image.
      */
