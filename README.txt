@@ -118,6 +118,10 @@ See: [http://docs.codefleet.net/cyclone-slider-2/creating-your-own-template/](ht
 
 == Changelog ==
 
+= 2.12.4 - 2016-08-10 =
+* Fix for worst image quality bug.
+* Merged with Grafika 1.4.0.
+
 = 2.12.3 - 2016-07-19 =
 * Fix for require_once not finding relative paths and fatal error when saving non image slides.
 
