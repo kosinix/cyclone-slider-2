@@ -75,7 +75,6 @@ class CycloneSlider_Data {
         // Assign POST data with array key checks
         $slides = isset($_POST['cycloneslider_metas']) ? $_POST['cycloneslider_metas'] : array();
         $slider_settings = isset($_POST['cycloneslider_settings']) ? $_POST['cycloneslider_settings'] : array();
-        
         // Resize images
         $this->image_resizer->resize_images( $slider_settings, $slides );
         
@@ -151,7 +150,7 @@ class CycloneSlider_Data {
         // Pro options
         $settings_to_save['easing'] = '';
         $settings_to_save['resize_option'] = 'fit';
-        $settings_to_save['resize_quality'] = 80;
+        $settings_to_save['resize_quality'] = 100;
         $settings_to_save['allow_wrap'] = 'true';
         $settings_to_save['dynamic_height'] = 'off';
         $settings_to_save['dynamic_height_speed'] = 250;
@@ -745,7 +744,7 @@ class CycloneSlider_Data {
             'resize' => 1,
             'width_management' => 'responsive',
             'resize_option' => 'fit',
-            'resize_quality' => 80,
+            'resize_quality' => 100,
             'easing' => '',
             'allow_wrap' => 'true',
             'dynamic_height' => 'off',
