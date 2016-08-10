@@ -40,6 +40,12 @@ final class Editor implements EditorInterface
      */
     public function apply($filter)
     {
+        $this->_imageCheck();
+
+        if ($this->image->isAnimated()) { // Ignore animated GIF for now
+            return $this;
+        }
+
         $this->image = $filter->apply($this->image);
 
         return $this;
@@ -74,10 +80,12 @@ final class Editor implements EditorInterface
 
         if (is_string($image1)) { // If string passed, turn it into a Image object
             $image1 = Image::createFromFile($image1);
+            $image1->flatten();
         }
 
         if (is_string($image2)) { // If string passed, turn it into a Image object
             $image2 = Image::createFromFile($image2);
+            $image2->flatten();
         }
 
         $hash = new DifferenceHash();
@@ -111,6 +119,10 @@ final class Editor implements EditorInterface
      */
     public function crop($cropWidth, $cropHeight, $position = 'center', $offsetX = 0, $offsetY = 0)
     {
+
+        if ($this->image->isAnimated()) { // Ignore animated GIF for now
+            return $this;
+        }
 
         if ('top-left' === $position) {
             $x = 0;
@@ -162,6 +174,12 @@ final class Editor implements EditorInterface
      */
     public function draw($drawingObject)
     {
+        $this->_imageCheck();
+
+        if ($this->image->isAnimated()) { // Ignore animated GIF for now
+            return $this;
+        }
+
         $this->image = $drawingObject->draw($this->image);
 
         return $this;
@@ -181,10 +199,12 @@ final class Editor implements EditorInterface
 
         if (is_string($image1)) { // If string passed, turn it into a Image object
             $image1 = Image::createFromFile($image1);
+            $image1->flatten();
         }
 
         if (is_string($image2)) { // If string passed, turn it into a Image object
             $image2 = Image::createFromFile($image2);
+            $image2->flatten();
         }
 
         // Check if image dimensions are equal
@@ -237,9 +257,44 @@ final class Editor implements EditorInterface
 
         $this->_imageCheck();
 
+        if ($this->image->isAnimated()) { // Ignore animated GIF for now
+            return $this;
+        }
+
         $target = $this->image->getCore()->getImagePixelColor($x, $y);
         $this->image->getCore()->floodfillPaintImage($color->getHexString(), 1, $target, $x, $y, false);
 
+        return $this;
+    }
+
+    /**
+     * Flatten if animated GIF. Do nothing otherwise.
+     *
+     * @return self
+     */
+    public function flatten(){
+        $this->_imageCheck();
+        $this->image->flatten();
+        return $this;
+    }
+
+    /**
+     * Flip or mirrors the image.
+     *
+     * @param string $mode The type of flip: 'h' for horizontal flip or 'v' for vertical.
+     *
+     * @return Editor
+     * @throws \Exception
+     */
+    public function flip($mode){
+        $this->_imageCheck();
+        if ($mode === 'h') {
+            $this->image->getCore()->flopImage();
+        } else if ($mode === 'v') {
+            $this->image->getCore()->flipImage();
+        } else {
+            throw new \Exception(sprintf('Unsupported mode "%s"', $mode));
+        }
         return $this;
     }
 
@@ -252,19 +307,24 @@ final class Editor implements EditorInterface
             if (null !== $this->image->getCore()) {
                 $this->image->getCore()->clear();
             }
-        } else {
-            $this->image = null;
         }
+        $this->image = null;
     }
 
     /**
      * Get image instance.
      *
+     * @param bool $byRef True to return image by reference or false to return a copy. Defaults to copy.
+     *
      * @return Image
      */
-    public function getImage()
+    public function getImage($byRef=false)
     {
-        return $this->image;
+        $this->_imageCheck();
+        if($byRef){
+            return $this->image;
+        }
+        return clone $this->image;
     }
 
     /**
@@ -299,6 +359,10 @@ final class Editor implements EditorInterface
     {
 
         $this->_imageCheck();
+
+        if ($this->image->isAnimated()) { // Ignore animated GIF for now
+            return $this;
+        }
 
         // Bounds checks
         $opacity = ($opacity > 1) ? 1 : $opacity;
@@ -375,6 +439,10 @@ final class Editor implements EditorInterface
     {
 
         $this->_imageCheck();
+
+        if ($this->image->isAnimated()) { // Ignore animated GIF for now
+            return $this;
+        }
 
         if (is_string($overlay)) { // If string passed, turn it into a Image object
             $overlay = Image::createFromFile($overlay);
@@ -632,6 +700,10 @@ final class Editor implements EditorInterface
 
         $this->_imageCheck();
 
+        if ($this->image->isAnimated()) { // Ignore animated GIF for now
+            return $this;
+        }
+
         $color = ($color !== null) ? $color : new Color('#000000');
         list($r, $g, $b, $alpha) = $color->getRgba();
 
@@ -730,6 +802,10 @@ final class Editor implements EditorInterface
 
         $this->_imageCheck();
 
+        if ($this->image->isAnimated()) { // Ignore animated GIF for now
+            return $this;
+        }
+
         $y += $size;
 
         $color = ($color !== null) ? $color : new Color('#000000');
@@ -766,6 +842,8 @@ final class Editor implements EditorInterface
      */
     function histogram($slice = null)
     {
+        $this->_imageCheck();
+
         if(null === $slice){
             $sliceX = 0;
             $sliceY = 0;
