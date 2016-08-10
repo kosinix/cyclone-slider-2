@@ -103,7 +103,7 @@ class CycloneSlider_ImageResizer {
 	private function resize_slide_image( $image_file, $image_file_dest, $width, $height, $resize_option, $resize_quality){
 		if(version_compare(PHP_VERSION, '5.3', '>=')){
 
-			require_once $this->path.'src/code-5.3.php'; // Hack. This code is not placed here but in an external file to prevent PHP from parsing the code in versions below 5.3.0 despite the if..else check. See http://stackoverflow.com/questions/17275557/run-a-conditional-using-php-version
+			include $this->path.'src/code-5.3.php'; // Hack. This code is not placed here but in an external file to prevent PHP from parsing the code in versions below 5.3.0 despite the if..else check. See http://stackoverflow.com/questions/17275557/run-a-conditional-using-php-version
 
 		} else {
 			// Create
