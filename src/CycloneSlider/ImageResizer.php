@@ -34,6 +34,7 @@ class CycloneSlider_ImageResizer {
 
 		$width =  $slider_settings['width'];
 		$height =  $slider_settings['height'];
+		$slider_settings['resize_quality'] = 100;
 		
 		if( is_array($slides) ){
 
@@ -62,7 +63,7 @@ class CycloneSlider_ImageResizer {
 						
 						// Resize if destination file does not exist OR if it exists but force resize is set to true
 						if( ( false === is_file($image_file_dest) ) or ( is_file($image_file_dest) and $slider_settings['force_resize'] ) ){
-							
+
 							$this->resize_slide_image( $image_file, $image_file_dest, $width, $height, $slider_settings['resize_option'], $slider_settings['resize_quality'] );
 						}
 					}
