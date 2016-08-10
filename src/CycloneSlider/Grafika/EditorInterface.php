@@ -82,6 +82,22 @@ interface EditorInterface {
     public function fill( $color, $x = 0, $y = 0 );
 
     /**
+     * Flatten if animated GIF. Do nothing otherwise.
+     *
+     * @return EditorInterface An instance of image editor.
+     */
+    public function flatten();
+
+    /**
+     * Flip an image.
+     *
+     * @param string $mode The type of flip: 'h' for horizontal flip or 'v' for vertical.
+     *
+     * @return EditorInterface An instance of image editor.
+     */
+    public function flip($mode);
+
+    /**
      * Free the current image clearing resources associated with it.
      */
     public function free();
@@ -89,9 +105,11 @@ interface EditorInterface {
     /**
      * Get image instance.
      *
+     * @param bool $byRef True to return image by reference or false to return a copy. Defaults to copy.
+     *
      * @return ImageInterface An instance of image.
      */
-    public function getImage();
+    public function getImage($byRef=false);
 
     /**
      * Checks the PHP install if the editor is available.

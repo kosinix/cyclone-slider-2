@@ -10,7 +10,15 @@ use CycloneSlider\Grafika\Gd\DrawingObject\QuadraticBezier as GdQuadraticBezier;
 use CycloneSlider\Grafika\Gd\DrawingObject\Rectangle as GdRectangle;
 use CycloneSlider\Grafika\Gd\Editor as GdEditor;
 use CycloneSlider\Grafika\Gd\Filter\Dither as GdDither;
+use CycloneSlider\Grafika\Gd\Filter\Blur as GdBlur;
+use CycloneSlider\Grafika\Gd\Filter\Brightness as GdBrightness;
+use CycloneSlider\Grafika\Gd\Filter\Colorize as GdColorize;
+use CycloneSlider\Grafika\Gd\Filter\Contrast as GdContrast;
+use CycloneSlider\Grafika\Gd\Filter\Gamma as GdGamma;
 use CycloneSlider\Grafika\Gd\Filter\Grayscale as GdGrayscale;
+use CycloneSlider\Grafika\Gd\Filter\Invert as GdInvert;
+use CycloneSlider\Grafika\Gd\Filter\Pixelate as GdPixelate;
+use CycloneSlider\Grafika\Gd\Filter\Sharpen as GdSharpen;
 use CycloneSlider\Grafika\Gd\Filter\Sobel as GdSobel;
 use CycloneSlider\Grafika\Gd\Image as GdImage;
 use CycloneSlider\Grafika\Imagick\DrawingObject\CubicBezier as ImagickCubicBezier;
@@ -20,8 +28,16 @@ use CycloneSlider\Grafika\Imagick\DrawingObject\Polygon as ImagickPolygon;
 use CycloneSlider\Grafika\Imagick\DrawingObject\QuadraticBezier as ImagickQuadraticBezier;
 use CycloneSlider\Grafika\Imagick\DrawingObject\Rectangle as ImagickRectangle;
 use CycloneSlider\Grafika\Imagick\Editor as ImagickEditor;
+use CycloneSlider\Grafika\Imagick\Filter\Blur as ImagickBlur;
+use CycloneSlider\Grafika\Imagick\Filter\Brightness as ImagickBrightness;
+use CycloneSlider\Grafika\Imagick\Filter\Colorize as ImagickColorize;
+use CycloneSlider\Grafika\Imagick\Filter\Contrast as ImagickContrast;
+use CycloneSlider\Grafika\Imagick\Filter\Gamma as ImagickGamma;
 use CycloneSlider\Grafika\Imagick\Filter\Dither as ImagickDither;
 use CycloneSlider\Grafika\Imagick\Filter\Grayscale as ImagickGrayscale;
+use CycloneSlider\Grafika\Imagick\Filter\Invert as ImagickInvert;
+use CycloneSlider\Grafika\Imagick\Filter\Pixelate as ImagickPixelate;
+use CycloneSlider\Grafika\Imagick\Filter\Sharpen as ImagickSharpen;
 use CycloneSlider\Grafika\Imagick\Filter\Sobel as ImagickSobel;
 use CycloneSlider\Grafika\Imagick\Image as ImagickImage;
 
@@ -166,22 +182,83 @@ class Grafika
     public static function createFilter($filterName)
     {
         $editorName = self::detectAvailableEditor();
+        $p = func_get_args();
         if ('Imagick' === $editorName) {
             switch ($filterName){
+                case 'Blur':
+                    return new ImagickBlur(
+                        (array_key_exists(1,$p) ? $p[1] : 1)
+                    );
+                case 'Brightness':
+                    return new ImagickBrightness(
+                        $p[1]
+                    );
+                case 'Colorize':
+                    return new ImagickColorize(
+                        $p[1], $p[2], $p[3]
+                    );
+                case 'Contrast':
+                    return new ImagickContrast(
+                        $p[1]
+                    );
                 case 'Dither':
                     return new ImagickDither();
+                case 'Gamma':
+                    return new ImagickGamma(
+                        $p[1]
+                    );
                 case 'Grayscale':
                     return new ImagickGrayscale();
+                case 'Invert':
+                    return new ImagickInvert();
+                case 'Pixelate':
+                    return new ImagickPixelate(
+                        $p[1]
+                    );
+                case 'Sharpen':
+                    return new ImagickSharpen(
+                        $p[1]
+                    );
                 case 'Sobel':
                     return new ImagickSobel();
             }
             throw new \Exception('Invalid filter name.');
         } else {
             switch ($filterName){
+                case 'Blur':
+                    return new GdBlur(
+                        (array_key_exists(1,$p) ? $p[1] : 1)
+                    );
+                case 'Brightness':
+                    return new GdBrightness(
+                        $p[1]
+                    );
+                case 'Colorize':
+                    return new GdColorize(
+                        $p[1], $p[2], $p[3]
+                    );
+                case 'Contrast':
+                    return new GdContrast(
+                        $p[1]
+                    );
                 case 'Dither':
                     return new GdDither();
+                case 'Gamma':
+                    return new GdGamma(
+                        $p[1]
+                    );
                 case 'Grayscale':
                     return new GdGrayscale();
+                case 'Invert':
+                    return new GdInvert();
+                case 'Pixelate':
+                    return new GdPixelate(
+                        $p[1]
+                    );
+                case 'Sharpen':
+                    return new GdSharpen(
+                        $p[1]
+                    );
                 case 'Sobel':
                     return new GdSobel();
             }
