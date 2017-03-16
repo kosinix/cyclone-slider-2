@@ -1,0 +1,11 @@
+Dev Requirements:
+
+* git
+* nodejs,npm
+
+Install:
+Run in command line: npm install
+
+Build source files:
+Run: gulp
+
