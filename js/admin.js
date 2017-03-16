@@ -133,7 +133,7 @@ jQuery(document).ready(function($){
         $('#cyclone-slides-metabox').on('click', '.cs-add-slide', function(e){
             var id = $('.cs-sortables .cs-slide').length;
             var html = $('.cs-slide-skeleton').html();
-            html = html.replace(/{id}/g, id);/*** replace all occurences of {id} to real id ***/
+            html = html.replace(/\{id\}/g, id);/*** replace all occurences of {id} to real id ***/
             
             $('.cs-sortables').append(html);
             $('.cs-sortables .cs-slide:last').find('.cs-thumbnail').hide().end().find('.cs-body').show();
@@ -167,7 +167,7 @@ jQuery(document).ready(function($){
         $('#cyclone-slides-metabox').on('wpAddImages', '.cs-multiple-slides', function(e, media_attachments){
             var cur_slide_count = $('.cs-sortables .cs-slide').length;
 
-            for(i=0; i<media_attachments.length; ++i){
+            for(var i=0; i<media_attachments.length; ++i){
                 
                 $('#cyclone-slides-metabox .cs-add-slide').trigger('click');
                 
