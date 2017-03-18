@@ -13,7 +13,6 @@ var jsIn = [
 ]; // We use array as they need specific order
 
 gulp.task('js', function() {
-
     return gulp.src(jsIn)
         .pipe(sourcemaps.init())
         .pipe(concat('all.js'))
@@ -27,32 +26,30 @@ gulp.task('js', function() {
 
 });
 
-var releaseIn = [
-    'css/**',
-    'images/**',
-    'js/**',
-    'languages/**',
-    'libs/**',
-    'src/**',
-    'templates/**',
-    'views/**',
-    'cyclone-slider.php',
-    'README.txt'
-];
-var releaseOutPath = 'release/cyclone-slider-2';
+// Copy files for release
 gulp.task('release', function() {
-
+    var releaseIn = [
+        'css/**',
+        'images/**',
+        'js/**',
+        'languages/**',
+        'libs/**',
+        'src/**',
+        'templates/**',
+        'views/**',
+        'cyclone-slider.php',
+        'README.txt'
+    ];
     return gulp.src(releaseIn, {base:'.'}) // Base preserves the dir structure
-        .pipe(gulp.dest(releaseOutPath));
+        .pipe(gulp.dest('release/cyclone-slider-2'));
 
 });
 
+// Zip release
 gulp.task('zip', function() {
-
     return gulp.src('release/cyclone-slider-2/**', {base:'release'}) // Base preserves the dir structure
         .pipe(zip('cyclone-slider-2.zip'))
         .pipe(gulp.dest('release'));
-
 });
 
 gulp.task('default', ['js']); // Runs on "gulp" command only
