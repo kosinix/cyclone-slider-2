@@ -5,25 +5,39 @@ var rename = require('gulp-rename');
 var sourcemaps = require('gulp-sourcemaps');
 var zip = require('gulp-zip');
 
-var jsOutPath = 'build/cyclone-slider-2/js';
-var jsIn = [
-    'js/store.js',
-    'js/admin.js',
-    'js/client.js'
-]; // We use array as they need specific order
-
-gulp.task('js', function() {
-    return gulp.src(jsIn)
+gulp.task('js-admin', function() {
+    var jsIn = [
+        'dev-only/js/store.js',
+        'dev-only/js/admin.js'
+    ]; // We use array as they need specific order
+    var jsOutPath = 'js';
+    return gulp.src(jsIn, {base: 'dev-only/js'})
         .pipe(sourcemaps.init())
-        .pipe(concat('all.js'))
+        .pipe(concat('admin.js'))
         .pipe(gulp.dest(jsOutPath))
         .pipe(uglify())
         .pipe(rename(function (path) {
             path.extname = ".min" + path.extname;
         }))
-        .pipe(sourcemaps.write())
+        .pipe(sourcemaps.write('.')) // Write sourcemaps to external files at the same dir. Remove param to inline.
         .pipe(gulp.dest(jsOutPath));
+});
 
+gulp.task('js-client', function() {
+    var jsIn = [
+        'dev-only/js/client.js'
+    ]; // We use array as they need specific order
+    var jsOutPath = 'js';
+    return gulp.src(jsIn, {base: 'dev-only/js'})
+        .pipe(sourcemaps.init())
+        .pipe(concat('client.js'))
+        .pipe(gulp.dest(jsOutPath))
+        .pipe(uglify())
+        .pipe(rename(function (path) {
+            path.extname = ".min" + path.extname;
+        }))
+        .pipe(sourcemaps.write('.')) // Write sourcemaps to external files at the same dir. Remove param to inline.
+        .pipe(gulp.dest(jsOutPath));
 });
 
 // Copy files for release
@@ -52,4 +66,5 @@ gulp.task('zip', function() {
         .pipe(gulp.dest('release'));
 });
 
-gulp.task('default', ['js']); // Runs on "gulp" command only
+gulp.task('js', ['js-admin', 'js-client']); // Runs on "gulp js"
+// gulp.task('default', ['js']);
