@@ -53,7 +53,7 @@ class CycloneSlider_AssetLoader {
 			wp_enqueue_style( 'font-awesome', $this->url.'libs/font-awesome/css/font-awesome.min.css', array(), $this->version );
 			
 			// Main style
-			wp_enqueue_style( 'cycloneslider-admin-styles', $this->url.'css/admin.css', array(), $this->version  );
+			wp_enqueue_style( 'cycloneslider-admin-styles', $this->url.'css/admin.min.css', array(), $this->version  );
 			
 			// Disable autosave
 			wp_dequeue_script( 'autosave' );

@@ -12,3 +12,6 @@ Run in command line: npm install
 Build source files:
 Run: gulp
 
+
+Git Model:
+branching
