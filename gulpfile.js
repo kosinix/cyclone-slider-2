@@ -63,6 +63,7 @@ gulp.task('js-concat', function() {
         'dev-only/src/js/admin.js'
     ],
     client = [
+        'dev-only/src/js/vimeo-player.js',
         'dev-only/src/js/client.js'
     ];
     gulp.src(admin, {base: 'dev-only/src/js'})
