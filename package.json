@@ -1,0 +1,30 @@
+{
+  "name": "cyclone-slider-2",
+  "version": "2.12.4",
+  "description": "=== Cyclone Slider 2 ===\r Contributors: kosinix\r Donate link: http://www.codefleet.net/donate/\r Tags: slider, slideshow, drag-and-drop, wordpress-slider, wordpress-slideshow, cycle 2, jquery, responsive, translation-ready, custom-post, cyclone-slider\r Requires at least: 3.5\r Tested up to: 4.5.3\r Stable tag: trunk\r License: GPLv3\r License URI: http://www.gnu.org/licenses/gpl-3.0.html",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kosinix/cyclone-slider-2.git"
+  },
+  "author": "",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/kosinix/cyclone-slider-2/issues"
+  },
+  "homepage": "https://github.com/kosinix/cyclone-slider-2#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-clean-css": "^3.0.4",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sass": "^3.1.0",
+    "gulp-sourcemaps": "^2.4.1",
+    "gulp-uglify": "^2.1.0",
+    "gulp-zip": "^4.0.0",
+    "run-sequence": "^1.2.2"
+  }
+}

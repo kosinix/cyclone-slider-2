@@ -53,7 +53,7 @@ class CycloneSlider_AssetLoader {
 			wp_enqueue_style( 'font-awesome', $this->url.'libs/font-awesome/css/font-awesome.min.css', array(), $this->version );
 			
 			// Main style
-			wp_enqueue_style( 'cycloneslider-admin-styles', $this->url.'css/admin.css', array(), $this->version  );
+			wp_enqueue_style( 'cycloneslider-admin-styles', $this->url.'css/admin.min.css', array(), $this->version  );
 			
 			// Disable autosave
 			wp_dequeue_script( 'autosave' );
@@ -61,11 +61,8 @@ class CycloneSlider_AssetLoader {
 			// For sortable elements
 			wp_enqueue_script('jquery-ui-sortable');
 			
-			// For localstorage
-			wp_enqueue_script( 'store', $this->url.'js/store-json2.min.js', array('jquery'), $this->version );
-			
 			// Allow translation to script texts
-			wp_register_script( 'cycloneslider-admin-script', $this->url.'js/admin.js', array('jquery'), $this->version  );
+			wp_register_script( 'cycloneslider-admin-script', $this->url.'js/admin.min.js', array('jquery'), $this->version  );
 			wp_localize_script( 'cycloneslider-admin-script', 'cycloneslider_admin_vars',
 				array(
 					'title'     => __( 'Select an image', 'cyclone-slider-2' ), // This will be used as the default title
@@ -146,7 +143,7 @@ class CycloneSlider_AssetLoader {
 		$this->enqueue_templates_scripts();
 		
 		/*** Client Script ***/
-		wp_enqueue_script( 'cyclone-client', $this->url.'js/client.js', array('jquery'), $this->version, $in_footer );
+		wp_enqueue_script( 'cyclone-client', $this->url.'js/client.min.js', array('jquery'), $this->version, $in_footer );
 
 	}
 	
